@@ -36,7 +36,6 @@ import 'internal/tools.dart';
 
 part 'display/bitmap.dart';
 part 'display/bitmap_container.dart';
-part 'display/bitmap_container_buffer.dart';
 part 'display/bitmap_container_program.dart';
 part 'display/bitmap_data.dart';
 part 'display/bitmap_data_channel.dart';

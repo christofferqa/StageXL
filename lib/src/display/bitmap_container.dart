@@ -61,7 +61,9 @@ class BitmapContainer
   final BitmapProperty bitmapVisible;
 
   final List<Bitmap> _children = new List<Bitmap>();
-  final List<_BitmapContainerBuffer> _buffers = new List<_BitmapContainerBuffer>();
+  final List<RenderBufferVertex> _dynBuffers = new List<RenderBufferVertex>();
+  final List<RenderBufferVertex> _staBuffers = new List<RenderBufferVertex>();
+
   int _buffersDirtyMin = 0; // inclusive
   int _buffersDirtyMax = 0; // exclusive
 
@@ -101,8 +103,11 @@ class BitmapContainer
   //---------------------------------------------------------------------------
 
   void dispose() {
-    while(_buffers.length > 0) {
-      _buffers.removeLast().dispose();
+    while(_dynBuffers.length > 0) {
+      _dynBuffers.removeLast().dispose();
+    }
+    while(_staBuffers.length > 0) {
+      _staBuffers.removeLast().dispose();
     }
   }
 

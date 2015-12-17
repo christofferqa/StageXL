@@ -57,10 +57,11 @@ class _TextureAtlasLoaderFile extends TextureAtlasLoader {
   Future<RenderTextureQuad> getRenderTextureQuad(String filename) async {
     var imageUrl = replaceFilename(_sourceUrl, filename);
     var imageLoader = new ImageLoader(imageUrl, _webpAvailable, _corsEnabled);
-    var imageElement = await imageLoader.done;
-    var renderTexture = new RenderTexture.fromImageElement(imageElement);
-    var renderTextureQuad = renderTexture.quad.withPixelRatio(_pixelRatio);
-    return renderTextureQuad;
+    return imageLoader.done.then((imageElement) {
+      var renderTexture = new RenderTexture.fromImageElement(imageElement);
+      var renderTextureQuad = renderTexture.quad.withPixelRatio(_pixelRatio);
+      return renderTextureQuad;
+    });
   }
 }
 

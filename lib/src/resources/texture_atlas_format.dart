@@ -18,37 +18,37 @@ class _TextureAtlasFormatJson extends TextureAtlasFormat {
 
   const _TextureAtlasFormatJson();
 
-  Future<TextureAtlas> load(TextureAtlasLoader loader) async {
-
-    var source = await loader.getSource();
-    var json = JSON.decode(source);
-    var frames = json["frames"];
-    var meta = json["meta"];
-    var image = meta["image"];
-
-    var textureAtlas = new TextureAtlas();
-    var renderTextureQuad = await loader.getRenderTextureQuad(image);
-
-    if (frames is List) {
-      for (var frame in frames) {
-        var frameMap = frame as Map;
-        var fileName = frameMap["filename"] as String;
-        var frameName = getFilenameWithoutExtension(fileName);
-        var taf = _createFrame(textureAtlas, renderTextureQuad, frameName, frameMap);
-        textureAtlas.frames.add(taf);
-      }
-    }
-
-    if (frames is Map) {
-      for (String fileName in frames.keys) {
-        var frameMap = frames[fileName] as Map;
-        var frameName = getFilenameWithoutExtension(fileName);
-        var taf = _createFrame(textureAtlas, renderTextureQuad, frameName, frameMap);
-        textureAtlas.frames.add(taf);
-      }
-    }
-
-    return textureAtlas;
+  Future<TextureAtlas> load(TextureAtlasLoader loader) {
+    return loader.getSource().then((source) {
+      var json = JSON.decode(source);
+      var frames = json["frames"];
+      var meta = json["meta"];
+      var image = meta["image"];
+  
+      var textureAtlas = new TextureAtlas();
+      return loader.getRenderTextureQuad(image).then((renderTextureQuad) {
+        if (frames is List) {
+          for (var frame in frames) {
+            var frameMap = frame as Map;
+            var fileName = frameMap["filename"] as String;
+            var frameName = getFilenameWithoutExtension(fileName);
+            var taf = _createFrame(textureAtlas, renderTextureQuad, frameName, frameMap);
+            textureAtlas.frames.add(taf);
+          }
+        }
+    
+        if (frames is Map) {
+          for (String fileName in frames.keys) {
+            var frameMap = frames[fileName] as Map;
+            var frameName = getFilenameWithoutExtension(fileName);
+            var taf = _createFrame(textureAtlas, renderTextureQuad, frameName, frameMap);
+            textureAtlas.frames.add(taf);
+          }
+        }
+    
+        return textureAtlas;
+      });
+    });
   }
 
   //---------------------------------------------------------------------------

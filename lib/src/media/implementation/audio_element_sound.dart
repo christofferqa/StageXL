@@ -26,17 +26,16 @@ class AudioElementSound extends Sound {
     var corsEnabled = soundLoadOptions.corsEnabled;
     var audioUrls = soundLoadOptions.getOptimalAudioUrls(url);
 
-    try {
-      var audioLoader = new AudioLoader(audioUrls, loadData, corsEnabled);
-      var audioElement = await audioLoader.done;
+    var audioLoader = new AudioLoader(audioUrls, loadData, corsEnabled);
+    return audioLoader.done.then((audioElement) {
       return new AudioElementSound._(audioElement);
-    } catch (e) {
+    }).catchError((e) {
       if (soundLoadOptions.ignoreErrors) {
         return MockSound.load(url, soundLoadOptions);
       } else {
         throw new StateError("Failed to load audio.");
       }
-    }
+    });
   }
 
   static Future<Sound> loadDataUrl(String dataUrl) async {
@@ -45,13 +44,12 @@ class AudioElementSound extends Sound {
     var loadData = false;
     var corsEnabled = false;
 
-    try {
-      var audioLoader = new AudioLoader(audioUrls, loadData, corsEnabled);
-      var audioElement = await audioLoader.done;
+    var audioLoader = new AudioLoader(audioUrls, loadData, corsEnabled);
+    return audioLoader.done.then((audioElement) {
       return new AudioElementSound._(audioElement);
-    } catch (e) {
+    }).catchError((e) {
       throw new StateError("Failed to load audio.");
-    }
+    });
   }
 
   //---------------------------------------------------------------------------

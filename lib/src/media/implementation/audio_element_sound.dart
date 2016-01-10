@@ -28,11 +28,12 @@ class AudioElementSound extends Sound {
 
     try {
       var audioLoader = new AudioLoader(audioUrls, loadData, corsEnabled);
-      var audioElement = await audioLoader.done;
-      return new AudioElementSound._(audioElement);
+      return audioLoader.done.then((audioElement) {
+        return new AudioElementSound._(audioElement);
+      });
     } catch (e) {
       if (soundLoadOptions.ignoreErrors) {
-        return MockSound.load(url, soundLoadOptions);
+        return new Future<Sound>.value(MockSound.load(url, soundLoadOptions));
       } else {
         throw new StateError("Failed to load audio.");
       }

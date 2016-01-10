@@ -19,17 +19,19 @@ class WebAudioApiSound extends Sound {
 
     for(var audioUrl in audioUrls) {
       try {
-        var httpRequest = await HttpRequest.request(audioUrl, responseType: 'arraybuffer');
-        var audioData = httpRequest.response;
-        var audioBuffer = await audioContext.decodeAudioData(audioData);
-        return new WebAudioApiSound._(audioBuffer);
+        return HttpRequest.request(audioUrl, responseType: 'arraybuffer').then((httpRequest) {
+          var audioData = httpRequest.response;
+          return audioContext.decodeAudioData(audioData).then((audioBuffer) {
+            return new WebAudioApiSound._(audioBuffer);
+          });
+        });
       } catch (e) {
         // ignore error
       }
     }
 
     if (soundLoadOptions.ignoreErrors) {
-      return MockSound.load(url, soundLoadOptions);
+      return new Future<Sound>.value(MockSound.load(url, soundLoadOptions));
     } else {
       throw new StateError("Failed to load audio.");
     }

@@ -81,17 +81,25 @@ class AudioElementSound extends Sound {
     for(var audioElement in _soundChannels.keys) {
       if (_soundChannels[audioElement] == null) {
         _soundChannels[audioElement] = soundChannel;
-        return audioElement;
+        return new Future<AudioElement>.value(audioElement);
       }
     }
 
     var audioElement = _audioElement.clone(true);
     var audioCanPlay = audioElement.onCanPlay.first;
-    if (audioElement.readyState == 0) await audioCanPlay;
+    if (audioElement.readyState == 0) {
+      return audioCanPlay.then((_) {
+        audioElement.onEnded.listen(_onAudioEnded);
+
+        _soundChannels[audioElement] = soundChannel;
+        return audioElement;
+      });
+    }
+
     audioElement.onEnded.listen(_onAudioEnded);
 
     _soundChannels[audioElement] = soundChannel;
-    return audioElement;
+    return new Future<AudioElement>.value(audioElement);
   }
 
   void _releaseAudioElement(AudioElement audioElement) {

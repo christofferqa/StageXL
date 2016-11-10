@@ -84,11 +84,17 @@ class AudioElementSound extends Sound {
 
     var audioElement = _audioElement.clone(true);
     var audioCanPlay = audioElement.onCanPlay.first;
-    if (audioElement.readyState == 0) await audioCanPlay;
-    audioElement.onEnded.listen(_onAudioEnded);
 
-    _soundChannels[audioElement] = soundChannel;
-    return audioElement;
+    return new Future.value().then((_) {
+      if (audioElement.readyState == 0) {
+        return audioCanPlay;
+      }
+    }).then((_) {
+      audioElement.onEnded.listen(_onAudioEnded);
+
+      _soundChannels[audioElement] = soundChannel;
+      return audioElement;
+    });
   }
 
   void _releaseAudioElement(AudioElement audioElement) {

@@ -47,13 +47,16 @@ class WebAudioApiSound extends Sound {
       bytes[i] = byteString.codeUnitAt(i);
     }
 
-    try {
-      var audioData = bytes.buffer;
-      var audioBuffer = await audioContext.decodeAudioData(audioData);
-      return new WebAudioApiSound._(audioBuffer);
-    } catch (e) {
-      throw new StateError("Failed to load audio.");
-    }
+    return new Future.value().then((_) {
+      try {
+        var audioData = bytes.buffer;
+        return audioContext.decodeAudioData(audioData);
+      } catch (e) {
+        throw new StateError("Failed to load audio.");
+      }
+    }).then((audioBuffer) {
+        return new WebAudioApiSound._(audioBuffer);
+    });
   }
 
   //---------------------------------------------------------------------------

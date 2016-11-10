@@ -17,22 +17,35 @@ class WebAudioApiSound extends Sound {
     var audioUrls = soundLoadOptions.getOptimalAudioUrls(url);
     var audioContext = WebAudioApiMixer.audioContext;
 
-    for(var audioUrl in audioUrls) {
-      try {
-        var httpRequest = await HttpRequest.request(audioUrl, responseType: 'arraybuffer');
-        var audioData = httpRequest.response;
-        var audioBuffer = await audioContext.decodeAudioData(audioData);
-        return new WebAudioApiSound._(audioBuffer);
-      } catch (e) {
-        // ignore error
+    Future f = new Future.value(null);
+
+    for (var audioUrl in audioUrls) {
+      if (f == null) {
+        f = HttpRequest.request(audioUrl, responseType: 'arraybuffer').then((httpRequest) {
+          var audioData = httpRequest.response;
+          return audioContext.decodeAudioData(audioData);
+        }).then((audioBuffer) {
+          return new WebAudioApiSound._(audioBuffer);
+        });
+      } else {
+        f = f.onError((_) {
+          return HttpRequest.request(audioUrl, responseType: 'arraybuffer').then((httpRequest) {
+            var audioData = httpRequest.response;
+            return audioContext.decodeAudioData(audioData);
+          }).then((audioBuffer) {
+            return new WebAudioApiSound._(audioBuffer);
+          });
+        });
       }
     }
 
-    if (soundLoadOptions.ignoreErrors) {
-      return MockSound.load(url, soundLoadOptions);
-    } else {
-      throw new StateError("Failed to load audio.");
-    }
+    return f.onError((_) {
+      if (soundLoadOptions.ignoreErrors) {
+        return MockSound.load(url, soundLoadOptions);
+      } else {
+        throw new StateError("Failed to load audio.");
+      }
+    });
   }
 
   //---------------------------------------------------------------------------
